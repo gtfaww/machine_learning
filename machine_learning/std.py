@@ -5,6 +5,8 @@ import logging
 from math import radians, atan, tan, sin, cos, acos
 
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 __author__ = 'guotengfei'
 __time__ = 2019 / 8 / 24
@@ -25,12 +27,12 @@ def filter_drift_point(data):
 
     print(len(data))
     distances = []
-    for i in xrange(0, len(data) - 1):
+    for i in range(0, len(data) - 1):
         distance = calc_distance(float(data[i]['lat']), float(data[i]['lng']), float(data[i + 1]['lat']),
                                  float(data[i + 1]['lng']))
         if distance * 1000 > 10.0:
             distances.append(distance * 1000)
-    print (len(distances))
+    print(len(distances))
     print(distances)
 
     std = np.std(distances, ddof=1)
@@ -41,11 +43,32 @@ def filter_drift_point(data):
     var = np.var(distances)
     print("var: {}".format(var))
     for distance in distances:
-        if distance < (mean + 2 * std) and distance > (mean - 2 * std):
+        if (mean - 2 * std) < distance < (mean + 2 * std):
             pass
         else:
-            print distance
-            print distances.index(distance)
+            print(distance)
+            print(distances.index(distance))
+
+    se = pd.Series(distances)
+    de = se.describe(percentiles=[.50, .75, .98])
+    print(de)
+
+    for distance in distances:
+        if distance > de['98%']:
+            print(distance)
+
+    xy_df = pd.DataFrame(data)
+    print(xy_df)
+    print(xy_df[['lat', 'lng']])
+    print(xy_df['lat'])
+    print(xy_df['lng'])
+    xy_df[['lat', 'lng']] = xy_df[['lat', 'lng']].astype(str)
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.scatter(xy_df['lat'], xy_df['lng'], color='green')
+    ax.set_xlabel('lat')
+    ax.set_ylabel('lng')
+    ax.set_title('gps Scatterplot')
 
 
 def calc_distance(Lat_A, Lng_A, Lat_B, Lng_B):
