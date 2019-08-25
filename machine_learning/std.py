@@ -12,7 +12,7 @@ __author__ = 'guotengfei'
 __time__ = 2019 / 8 / 24
 
 """
-Module comment
+std
 """
 
 LOGGER = logging.getLogger(__name__)
