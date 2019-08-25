@@ -7,6 +7,7 @@ from math import radians, atan, tan, sin, cos, acos
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 __author__ = 'guotengfei'
 __time__ = 2019 / 8 / 24
@@ -31,7 +32,7 @@ def filter_drift_point(data):
         distance = calc_distance(float(data[i]['lat']), float(data[i]['lng']), float(data[i + 1]['lat']),
                                  float(data[i + 1]['lng']))
         if distance * 1000 > 10.0:
-            distances.append(distance * 1000)
+            distances.append(dict(distance=distance * 1000, divice=data[i]['deviceId']))
     print(len(distances))
     print(distances)
 
@@ -69,6 +70,16 @@ def filter_drift_point(data):
     ax.set_xlabel('lat')
     ax.set_ylabel('lng')
     ax.set_title('gps Scatterplot')
+
+    se = pd.DataFrame(distances)
+    fig, ax = plt.subplots(figsize=(7, 7))
+    sns.set(style='white', palette='muted')
+    sns.violinplot(x=se['divice'], y=se['distance'], ax=ax)
+    fig.suptitle('distance', fontsize=16, y=1.03)
+    # plt.setp('distance', rotation=-90)
+    fig.tight_layout()
+
+
 
 
 def calc_distance(Lat_A, Lng_A, Lat_B, Lng_B):
